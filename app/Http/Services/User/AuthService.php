@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Services\User\UserService;
-
+use Exception;
 
 class AuthService
 {
@@ -19,7 +19,8 @@ class AuthService
      */
     public function __construct(
         protected UserService $userService,
-    ){}
+    ) {
+    }
 
     /**
      * Create the user
@@ -34,10 +35,10 @@ class AuthService
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'mobile'=> $data['mobile'],
-            'age'=> $data['age'],
+            'mobile' => $data['mobile'],
+            'age' => $data['age'],
             'remember_token' => Str::random(40),
-        ]); 
+        ]);
 
         // Send verification mail
         Mail::to($user->email)->send(new RegisterMail(user: $user));
@@ -45,18 +46,18 @@ class AuthService
 
     public function login(array $data)
     {
-        if(!Auth::attempt(['email' => $data['email'], 'password' => $data['password']])){
-            return response()->json(['message'=>'Invalid login details'], 401);
+        if (!Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+            return response()->json(['message' => 'Invalid login details'], 401);
         }
 
         $user = $this->userService->getByEmailOrFail($data['email']);
 
-        if(empty($user->email_verified_at)){
-            throw new ClientException('Your email verification is pending');
+        if (empty($user->email_verified_at)) {
+            throw new Exception('Your email verification is pending');
         }
 
-        Auth::login($user);
+        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
 
-        dd(auth()->user()->access_token);
+        return $token;
     }
 }

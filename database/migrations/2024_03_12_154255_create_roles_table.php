@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug');
             $table->string('name');
+            $table->Integer('is_system_role');
             $table->timestamps();
         });
     }

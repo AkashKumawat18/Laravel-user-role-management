@@ -9,7 +9,14 @@ class Role extends Model
 {
     use HasFactory;
 
-    public function permissions(){
+    protected $guarded = [];
+
+    protected $casts = [
+        'is_system' => 'boolean',
+    ];
+
+    public function permissions()
+    {
         return $this->belongsToMany(Permission::class);
     }
 }

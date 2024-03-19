@@ -6,7 +6,10 @@ use App\Enums\PermissionEnum;
 
 class PermissionDefinitions
 {
-    public static function get()
+    /**
+     * 
+     */
+    public static function get(): array
     {
         return [
             PermissionEnum::P_READ_USER->value => [

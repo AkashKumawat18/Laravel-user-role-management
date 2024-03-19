@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\PermissionEnum;
+use App\Helpers\Helpers;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Services\User\AuthService;
@@ -33,6 +35,8 @@ class AuthController extends Controller
      */
     public function register(CreateUserRequest $request): JsonResponse
     {
+        Helpers::ensurePermission(PermissionEnum::P_CREATE_USER->value);
+
         $this->authService->create(data: $request->all());
 
         return response()->json([

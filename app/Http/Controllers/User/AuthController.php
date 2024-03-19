@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\PermissionEnum;
-use App\Helpers\Helpers;
+use App\Helpers\CoreHelper;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Services\User\AuthService;
@@ -35,7 +35,8 @@ class AuthController extends Controller
      */
     public function register(CreateUserRequest $request): JsonResponse
     {
-        Helpers::ensurePermission(PermissionEnum::P_CREATE_USER->value);
+        // Default user who have role of admin who will create other users and assign them roles either customer or admin.
+        CoreHelper::ensurePermission(PermissionEnum::P_CREATE_USER->value);
 
         $this->authService->create(data: $request->all());
 
@@ -53,7 +54,6 @@ class AuthController extends Controller
      */
     public function login(LoginUserRequest $request): JsonResponse
     {
-
         $token = $this->authService->login($request->all());
         return response()->json([
             'access_token' => $token,

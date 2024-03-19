@@ -5,7 +5,7 @@ namespace App\Helpers;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
-class Helpers
+class CoreHelper
 {
     /**
      * Enuser whether logged in user has partcular permission or not
@@ -17,10 +17,11 @@ class Helpers
      */
     public static function ensurePermission(string $permission)
     {
+
         $user = Auth::user();
 
         $userRole = $user->role;
-
+        dd($userRole);
         $hasPermission = $userRole->permissions()->where('key', $permission)->first();
 
         if ($hasPermission) {

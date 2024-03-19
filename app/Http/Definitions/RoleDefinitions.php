@@ -9,7 +9,7 @@ class RoleDefinitions
 {
     protected static array $roles = [
         RoleEnum::ADMIN->value => [
-            'slug' => 'administrator',
+            'slug' => RoleEnum::ADMIN->value,
             'name' => 'Administrator',
             'permissions' => [
                 PermissionEnum::P_READ_USER->value,

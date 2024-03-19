@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use App\Models\Role;
-use App\Models\Permission;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -55,8 +54,8 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * User's role
      */
-    public function role(): HasOne
+    public function role(): BelongsToMany
     {
-        return $this->hasOne(Role::class);
+        return $this->belongsToMany(Role::class);
     }
 }

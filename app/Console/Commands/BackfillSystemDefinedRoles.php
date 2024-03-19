@@ -2,10 +2,18 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\RoleEnum;
 use App\Http\Definitions\RoleDefinitions;
+use App\Mail\passwordMail;
+use App\Mail\RegisterMail;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+
 
 class BackfillSystemDefinedRoles extends Command
 {
@@ -38,25 +46,46 @@ class BackfillSystemDefinedRoles extends Command
 
         $progressBar = $this->output->createProgressBar(count($systemDefinedRoles));
 
-        foreach ($systemDefinedRoles as $systemDefinedRole) {
-            /** @var Role $role */
-            $role = Role::create([
-                'slug' => $systemDefinedRole['slug'],
-                'name' => $systemDefinedRole['name'],
-                'is_system_role' => $systemDefinedRole['readOnly'],
-            ]);
+        DB::transaction(function () use ($systemDefinedRoles, &$progressBar) {
 
-            $permissons = Permission::query()
-                ->whereIn('key', $systemDefinedRole['permissions'])
-                ->get()
-                ->pluck('id')
-                ->toArray();
+            foreach ($systemDefinedRoles as $systemDefinedRole) {
+                /** @var Role $role */
+                $role = Role::create([
+                    'slug' => $systemDefinedRole['slug'],
+                    'name' => $systemDefinedRole['name'],
+                    'is_system_role' => $systemDefinedRole['readOnly'],
+                ]);
 
-            $role->permissions()->sync($permissons);
+                $permissons = Permission::query()
+                    ->whereIn('key', $systemDefinedRole['permissions'])
+                    ->get()
+                    ->pluck('id')
+                    ->toArray();
 
-            $progressBar->advance();
-        }
+                $role->permissions()->sync($permissons);
 
-        $progressBar->finish();
+                if ($role->slug === RoleEnum::ADMIN->value) {
+                    $password = Str::random(10);
+
+                    /** @var User $user */
+                    $user = User::create([
+                        'name' => 'System',
+                        'email' => 'kashu7102@gmail.com',
+                        'password' => $password,
+                        'mobile' => 9999999999,
+                        'age' => 26,
+                        'email_verified_at' => now(),
+                    ]);
+
+                    // share the password over email
+                    Mail::to($user->email)->send(new passwordMail($user));
+                    // Mail::to($data['email'])->send(new WelcomeMail($user, $random_password)));
+
+                    $user->role()->sync([$role->id]);
+                }
+
+                $progressBar->advance();
+            }
+        });
     }
 }

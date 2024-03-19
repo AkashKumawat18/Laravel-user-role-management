@@ -19,7 +19,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 |
 */
 
-Route::post('register', [AuthController::class, 'register']);
+
 Route::post('login', [AuthController::class, 'login']);
 Route::get('users/verify/{token}', [UserController::class, 'verify']);
 Route::post('forgot-password', [UserController::class, 'forgot']);
@@ -31,6 +31,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         'namespace' => 'user',
         'prefix' => 'users',
     ], function () {
+        Route::post('/register', [AuthController::class, 'register']);
         Route::get('/', [UserController::class, 'index']);
         Route::delete('/delete/{id}', [UserController::class, 'delete']);
         Route::patch('{id}', [UserController::class, 'update']);

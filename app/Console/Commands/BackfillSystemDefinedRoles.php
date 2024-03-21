@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\RoleEnum;
 use App\Http\Definitions\RoleDefinitions;
-use App\Mail\passwordMail;
+use App\Mail\PasswordMail;
 use App\Mail\RegisterMail;
 use App\Models\Permission;
 use App\Models\Role;
@@ -77,9 +77,9 @@ class BackfillSystemDefinedRoles extends Command
                         'email_verified_at' => now(),
                     ]);
 
-                    // share the password over email
-                    Mail::to($user->email)->send(new passwordMail($user));
-                    // Mail::to($data['email'])->send(new WelcomeMail($user, $random_password)));
+                    //Mail the password
+                    Mail::to($user->email)->send(new PasswordMail(user: $user, password: $password));
+
 
                     $user->role()->sync([$role->id]);
                 }

@@ -3,19 +3,55 @@
 namespace App\Http\Services\User;
 
 use App\Models\Role;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Str;
 
 
 class RoleService
 {
     /**
-     * Create Role
-     * 
-     * @para
+     * Get role using id(if not found throw exception)
+     *
+     * @param int $id
+     *
+     * @return ?Role
      */
-    public function create(array $data): void
+    public function getByIdOrFail(int $id): ?Role
     {
-        $role = Role::create([
-            'name'=>$data['role'],
+        return Role::findOrFail($id);
+    }
+
+
+    /**
+     * Create Role
+     *
+     * @param array $data
+     *
+     * @return Role
+     */
+    public function create(array $data): Role
+    {
+        return Role::create([
+            'name' => $data['name'],
+            'slug' => Str::slug($data['name']),
         ]);
     }
+
+    /**
+     * update role
+     *
+     * @param Role $role
+     * @param array $data
+     * @throws \Exception
+     */
+    public function update(Role $role, array $data): void
+    {
+        if ($role->isSystemRole()) {
+            throw new \Exception(__('System defined roles cannot be altered.'), 400);
+        }
+
+        $role->permissions()->sync($data['permission_ids']);
+    }
+
+
 }

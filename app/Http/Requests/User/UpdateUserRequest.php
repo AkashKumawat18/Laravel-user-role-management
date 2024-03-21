@@ -27,7 +27,8 @@ class UpdateUserRequest extends FormRequest
             'name'=>['required', 'string', 'max:30'],
             'email'=> ['required', 'email', 'max:50', Rule::unique('users')->ignore($this->id)],
             'age'=>['required', 'integer'],
-            'mobile' => ['required', new PhoneNumberValidation()]
+            'mobile' => ['required', new PhoneNumberValidation()],
+            'role_id' => ['required', 'integer', 'exists:roles,id']
         ];
     }
 }

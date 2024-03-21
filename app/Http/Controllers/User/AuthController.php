@@ -16,7 +16,7 @@ class AuthController extends Controller
 {
     /**
      * AuthController constructor
-     * 
+     *
      * @param AuthService $authService
      * @param UserService $userService
      */
@@ -28,10 +28,11 @@ class AuthController extends Controller
 
     /**
      * Register user
-     * 
+     *
      * @param CreateUserRequest $request
-     * 
+     *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function register(CreateUserRequest $request): JsonResponse
     {
@@ -47,9 +48,9 @@ class AuthController extends Controller
 
     /**
      * Login user
-     * 
+     *
      * @param LoginUserRequest $request
-     * 
+     *
      * @return JsonResponse
      */
     public function login(LoginUserRequest $request): JsonResponse
@@ -63,7 +64,7 @@ class AuthController extends Controller
     /**
      * Logout user
      * @param
-     * 
+     *
      * @return JsonResponse
      */
 

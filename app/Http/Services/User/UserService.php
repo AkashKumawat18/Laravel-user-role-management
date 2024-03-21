@@ -3,6 +3,7 @@
 namespace App\Http\Services\User;
 
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\ForgotPasswordMail;
@@ -13,11 +14,12 @@ use GuzzleHttp\Exception\ClientException;
 class UserService
 {
     /**
-     * Get all users 
-     * 
-     * @return ?User
+     * Get all users
+     *
+     * @param Request $request
+     * @return ?LengthAwarePaginator
      */
-    public function getAllUsers(Request $request)
+    public function getAllUsers(Request $request): ?LengthAwarePaginator
     {
         return User::query()
             ->when($request->input('q_search'), function($query) use($request){
@@ -28,9 +30,9 @@ class UserService
 
     /**
      * Get user using id(if not found throw exception)
-     * 
+     *
      * @param int $id
-     * 
+     *
      * @return ?User
      */
     public function getByIdOrFail(int $id)
@@ -40,9 +42,9 @@ class UserService
 
     /**
      * Get user using id(if not found throw exception)
-     * 
+     *
      * @param string $email
-     * 
+     *
      * @return ?User
      */
     public function getByEmailOrFail(string $email)
@@ -52,23 +54,23 @@ class UserService
 
     /**
      * Get user using token(if not found throw exception)
-     * 
+     *
      * @param string $token
-     * 
+     *
      * @return ?User
      */
     public function getByRememberTokenOrFail(string $token)
     {
-        
+
         return User::where('remember_token',$token)->firstOrFail();
     }
 
     /**
      * Update an user
-     * 
+     *
      * @param User $user
      * @param array $data
-     * 
+     *
      * @return User
      */
     public function update(User $user, array $data): User
@@ -81,16 +83,18 @@ class UserService
             'age' => $data['age'],
         ]);
 
+        $user->role()->sync([$data['role_id']]);
+
         return $user;
     }
 
-   
+
 
      /**
      * Verify an user
-     * 
+     *
      * @param User $user
-     * 
+     *
      * @return User
      */
     public function verify(User $user): User
@@ -103,9 +107,9 @@ class UserService
 
       /**
      * forgot password
-     * 
+     *
      * @param User $user
-     * 
+     *
      * @return User
      */
     public function forgot(User $user): User
@@ -121,10 +125,10 @@ class UserService
 
       /**
      * reset password
-     * 
+     *
      * @param $token
      * @param User $user
-     * 
+     *
      * @return User
      */
     public function resetPassword(User $user, array $data): User
@@ -132,7 +136,7 @@ class UserService
         $user->password = $data['password'];
         $user->remember_token = null;
         $user->save();
-        
+
         return $user;
     }
 }

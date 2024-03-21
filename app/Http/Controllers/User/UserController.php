@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\PermissionEnum;
+use App\Helpers\CoreHelper;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\ForgotPasswordMail;
@@ -20,7 +23,7 @@ class UserController extends Controller
 {
     /**
      * UserController constructor
-     * 
+     *
      * @param UserService $userService
      */
     public function __construct(
@@ -28,13 +31,17 @@ class UserController extends Controller
     ){
     }
 
-     /**
+    /**
      * Get all users
-     * 
+     *
+     * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
+        CoreHelper::ensurePermission(PermissionEnum::P_READ_USER->value);
+
         $users = $this->userService->getAllUsers($request);
 
         return response()->json([new UserCollection($users)]);
@@ -42,11 +49,15 @@ class UserController extends Controller
 
     /**
      * Delete a user
-     * 
+     *
+     * @param $id
      * @return JsonResponse
+     * @throws Exception
      */
     public function delete($id) :JsonResponse
     {
+        CoreHelper::ensurePermission(PermissionEnum::P_DELETE_USER->value);
+
         $user = $this->userService->getByIdOrFail($id);
 
         $user->delete();
@@ -56,15 +67,19 @@ class UserController extends Controller
         ]);
     }
 
-    /**
+     /**
      * Update user
-     * 
-     *  @param UpdateUserRequest $request
-     * 
+     *
+     * @param int $id
+     * @param UpdateUserRequest $request
+     *
      * @return JsonResponse
+     * @throws Exception
      */
     public function update(int $id, UpdateUserRequest $request) : JsonResponse
     {
+        CoreHelper::ensurePermission(PermissionEnum::P_UPDATE_USER->value);
+
         $user = $this->userService->getByIdOrFail($id);
 
         $user = $this->userService->update(user: $user, data: $request->all());
@@ -76,9 +91,9 @@ class UserController extends Controller
 
      /**
      * Verify user
-     * 
+     *
      *  @param UpdateUserRequest $request
-     * 
+     *
      * @return JsonResponse
      */
     public function verify($token)
@@ -94,9 +109,9 @@ class UserController extends Controller
 
     /**
      * forget password
-     * 
+     *
      *  @param ForgetPasswordRequest $request
-     * 
+     *
      * @return JsonResponse
      */
 
@@ -104,7 +119,7 @@ class UserController extends Controller
      {
         $user = $this->userService->getByEmailOrFail($request->email);
 
-            
+
         $this->userService->forgot(user: $user);
 
         return response()->json([
@@ -114,14 +129,14 @@ class UserController extends Controller
 
     /**
      * reset password
-     * 
+     *
      *  @param ForgetPasswordRequest $request
-     * 
+     *
      * @return JsonResponse
      */
 
      public function reset(string $token, ResetPasswordRequest $request):JsonResponse
-     {        
+     {
         $user = $this->userService->getByRememberTokenOrFail($token);
 
         $user =  $this->userService->resetPassword(user: $user, data: $request->all());

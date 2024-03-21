@@ -14,7 +14,7 @@ class AuthService
 {
     /**
      * AuthService Constructor
-     * 
+     *
      * @param UserService $userService
      */
     public function __construct(
@@ -24,13 +24,14 @@ class AuthService
 
     /**
      * Create the user
-     * 
+     *
      * @param array $data
-     * 
+     *
      * @return Void
      */
     public function create(array $data): void
     {
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

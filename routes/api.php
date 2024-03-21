@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\user\RoleController;
 use App\Http\Controllers\User\UserController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,8 +33,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::get('/', [UserController::class, 'index']);
         Route::delete('/delete/{id}', [UserController::class, 'delete']);
-        Route::patch('{id}', [UserController::class, 'update']);
-        Route::post('{id}/logout', [AuthController::class, 'logout']);
+        Route::patch('/{id}', [UserController::class, 'update']);
+        Route::post('/{id}/logout', [AuthController::class, 'logout']);
     });
 
     // Role's Route
@@ -43,6 +42,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         'namespace' => 'role',
         'prefix' => 'roles',
     ], function () {
-        Route::post('/create', [RoleController::class, 'create']);
+        Route::post('/', [RoleController::class, 'create']);
+        Route::delete('/{id}', [RoleController::class, 'delete']);
+        Route::patch('/{id}', [RoleController::class, 'update']);
     });
 });
+
+//create a user through system user
